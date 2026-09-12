@@ -1,32 +1,32 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const favoriteRoutes = require('./routes/favorite.routes');
 const inquiryRoutes = require('./routes/inquiry.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
+const propertyRoutes = require('./routes/property.routes');
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Dummy Auth Middleware لتمرير المستخدم حتى تكتمل المهمة الأولى
-app.use((req, res, next) => {
+app.use((req,res , next) => {
   req.user = { id: '650000000000000000000001', role: 'agent' };
   next();
 });
 
-// Routes Registration
 app.use('/api', favoriteRoutes);
 app.use('/api', inquiryRoutes);
 app.use('/api', analyticsRoutes);
+app.use('/api/properties', propertyRoutes);
 
-// Global Error Handler
 app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).json({
     success: false,
-    message: err.message || 'خطأ غير متوقع في السيرفر',
+    message: err.message || 'خطأ غير متوقع في السيرفر'
   });
 });
 

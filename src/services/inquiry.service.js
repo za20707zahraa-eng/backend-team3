@@ -1,5 +1,5 @@
 const Inquiry = require('../models/Inquiry');
-const Property = require('../models/Property');
+const Property = require('../models/Property').default;
 
 exports.createInquiry = async (clientId, propertyId, message) => {
   const property = await Property.findById(propertyId);

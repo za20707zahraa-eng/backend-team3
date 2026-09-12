@@ -1,4 +1,4 @@
-const Property = require('../models/Property');
+const Property = require('../models/Property').default;
 const Inquiry = require('../models/Inquiry');
 
 exports.getAgentAnalytics = async (agentId) => {
