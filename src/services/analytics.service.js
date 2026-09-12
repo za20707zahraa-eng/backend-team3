@@ -1,12 +1,14 @@
-const Property = require('../models/Property').default;
+const Property = require('../models/Property');
 const Inquiry = require('../models/Inquiry');
 
 exports.getAgentAnalytics = async (agentId) => {
-  const agentProperties = await Property.find({ agent_id: agentId });
-  const propertyIds = agentProperties.map(p => p._id);
+  const agentProperties = await Property.findByAgentId(agentId);
+  const propertyIds = agentProperties.map(p => p.id);
 
   const totalProperties = agentProperties.length;
-  const totalInquiries = await Inquiry.countDocuments({ property_id: { $in: propertyIds } });
+  const totalInquiries = propertyIds.length
+    ? await Inquiry.countByPropertyIds(propertyIds)
+    : 0;
 
   const propertyStatusSummary = {
     available: agentProperties.filter(p => p.status === 'available').length,
@@ -14,10 +16,9 @@ exports.getAgentAnalytics = async (agentId) => {
     sold: agentProperties.filter(p => p.status === 'sold').length,
   };
 
-  const inquiryStatusCounts = await Inquiry.aggregate([
-    { $match: { property_id: { $in: propertyIds } } },
-    { $group: { _id: '$status', count: { $sum: 1 } } },
-  ]);
+  const inquiryStatusCounts = propertyIds.length
+    ? await Inquiry.countByStatusForPropertyIds(propertyIds)
+    : [];
 
   const inquiryStatusSummary = {
     pending: 0,
@@ -26,7 +27,7 @@ exports.getAgentAnalytics = async (agentId) => {
   };
 
   inquiryStatusCounts.forEach(item => {
-    inquiryStatusSummary[item._id] = item.count;
+    inquiryStatusSummary[item.status] = parseInt(item.count, 10);
   });
 
   return {

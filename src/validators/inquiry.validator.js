@@ -2,8 +2,9 @@ const { body, param } = require('express-validator');
 
 exports.createInquiryValidator = [
   param('id')
-    .isMongoId()
-    .withMessage('معرف العقار غير صالح'),
+    .isInt({ min: 1 })
+    .withMessage('معرف العقار غير صالح')
+    .toInt(),
   body('message')
     .notEmpty()
     .withMessage('الرسالة مطلوبة')
@@ -13,8 +14,9 @@ exports.createInquiryValidator = [
 
 exports.updateInquiryStatusValidator = [
   param('id')
-    .isMongoId()
-    .withMessage('معرف الاستفسار غير صالح'),
+    .isInt({ min: 1 })
+    .withMessage('معرف الاستفسار غير صالح')
+    .toInt(),
   body('status')
     .isIn(['pending', 'replied', 'closed'])
     .withMessage('حالة الاستفسار غير صالحة'),

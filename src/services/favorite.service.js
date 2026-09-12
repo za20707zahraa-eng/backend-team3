@@ -1,10 +1,10 @@
 const Favorite = require('../models/Favorite');
 
 exports.toggleFavorite = async (userId, propertyId) => {
-  const existingFavorite = await Favorite.findOne({ user_id: userId, property_id: propertyId });
+  const existingFavorite = await Favorite.findOne(userId, propertyId);
 
   if (existingFavorite) {
-    await Favorite.deleteOne({ _id: existingFavorite._id });
+    await Favorite.deleteById(existingFavorite.id);
     return { isFavorited: false, message: 'تم إزالة العقار من المفضلة' };
   }
 
@@ -13,7 +13,5 @@ exports.toggleFavorite = async (userId, propertyId) => {
 };
 
 exports.getUserFavorites = async (userId) => {
-  return await Favorite.find({ user_id: userId })
-    .populate('property_id')
-    .sort({ created_at: -1 });
+  return await Favorite.findByUserIdWithProperty(userId);
 };
